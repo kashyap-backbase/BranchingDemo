@@ -1,11 +1,19 @@
 # This is a basic workflow to help you get started with Actions
 
+name: "Deploy production build"
 
+#
+#   IMPORTANT TO KNOW
+#
+# - Unlike others, this workflow runs every time there is a closed PR to master branch
 
-name: Push on master
 on:
-  push:
-    branches: [ master ]
+  pull_request:
+    branches:
+      - master
+    types:
+      - closed
+
   
 
   
