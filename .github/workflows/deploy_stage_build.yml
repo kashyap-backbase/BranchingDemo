@@ -6,7 +6,9 @@ name: CI
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
-    branches: [ develop ]
+    branches:
+      - 'hotfix/**'
+      - 'release/**'
   
 
   
@@ -25,6 +27,7 @@ jobs:
 
       # Runs a single command using the runners shell
       - name: Run a one-line script
-        run: echo develop branch pushed
+        run: echo STAGE Build from hotFix or release branch
 
       
+
