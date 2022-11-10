@@ -10,7 +10,7 @@ name: "Deploy production build"
 on:
   pull_request:
     branches:
-      - master
+      - main
     types:
       - closed
 
