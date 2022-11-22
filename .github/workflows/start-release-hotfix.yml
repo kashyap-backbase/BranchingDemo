@@ -11,7 +11,7 @@ jobs:
 
     # Only run for issues with release title and release as issue name.
     # Example Release version uat/9 1.0.2
-    if: startsWith(github.event.issue.title, 'Release version uat/') && contains(github.event.issue.labels.*.name, 'release')
+    if: startsWith(github.event.issue.title, 'Release version uat') && contains(github.event.issue.labels.*.name, 'release')
     steps:
       - uses: actions/checkout@v2
 
