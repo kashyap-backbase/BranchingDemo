@@ -1,0 +1,66 @@
+name: "Update branch for hotfix or release"
+
+inputs:
+  RELEASE_TYPE:
+    description: "Release or hotfix"
+    required: true
+  BASE_BRANCH:
+    description: "Base branch for hotfix or release PR"
+    required: true
+  RELEASE_VERSION:
+    description: "Release or hotfix version"
+    required: true
+
+description: Create Release PR
+runs:
+  using: "composite"
+  steps:
+
+    - name: Create hotfix branch
+      run: |
+        git fetch origin ${{ inputs.BASE_BRANCH }}
+        git checkout ${{ inputs.BASE_BRANCH }}
+        git checkout -b ${{ inputs.RELEASE_TYPE }}/${{ inputs.RELEASE_VERSION }}
+      shell: bash
+    
+    # In order to make a commit, we need to initialize a user.
+    # You may choose to write something less generic here if you want, it doesn't matter functionality wise.
+    - name: Initialize mandatory git config
+      run: |
+        git config --global user.email "bot@backbase.com"
+        git config --global user.name "Release BOT"
+      shell: bash
+
+      # In this step we need to update release version
+    - name: YQ - bump version on production
+      uses: mikefarah/yq@v4.2.1
+      with:
+        cmd: "yq e '.configurations[\"production\"].version_name = \"${{ inputs.RELEASE_VERSION }}\"' -i fastlane/props.yaml"
+        
+    - name: Write to CHANGELOG.md
+      uses: DamianReeves/write-file-action@v1.0
+      with:
+        path: CHANGELOG.md
+        contents: |
+          echo "${{ github.event.issue.body }}"
+        write-mode: overwrite
+
+    - name: Update CHANGELOG.md
+      uses: thomaseizinger/keep-a-changelog-new-release@1.1.0
+      with:
+        version: ${{ inputs.RELEASE_VERSION }}
+
+    - name: Commit changelog and manifest files
+      id: make-commit
+      run: |
+        git add .
+        git commit --message "Prepare ${{ inputs.RELEASE_TYPE }} ${{ inputs.RELEASE_VERSION }}"
+
+        echo "::set-output name=commit::$(git rev-parse HEAD)"
+      shell: bash
+
+    - name: Push new branch
+      run: |
+          git fetch
+          git push origin ${{ inputs.RELEASE_TYPE }}/${{ inputs.RELEASE_VERSION }}
+      shell: bash
