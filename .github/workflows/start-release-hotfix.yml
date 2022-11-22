@@ -10,7 +10,8 @@ jobs:
     runs-on: ubuntu-latest
 
     # Only run for issues with release title and release as issue name.
-    if: startsWith(github.event.issue.title, 'Release version') && contains(github.event.issue.labels.*.name, 'release')
+    # Example Release version uat/9 1.0.2
+    if: startsWith(github.event.issue.title, 'Release version uat/') && contains(github.event.issue.labels.*.name, 'release')
     steps:
       - uses: actions/checkout@v2
 
@@ -18,13 +19,19 @@ jobs:
         run: |
           TITLE="${{ github.event.issue.title }}"
           VERSION=${TITLE#Release version }
+          IFS=' '
+          read -a strarr <<< "$VERSION"
+          UAT_TAG=${strarr[0]}
+          VERSION=${strarr[1]}
+          echo "TAG=$UAT_TAG" >>$GITHUB_ENV
           echo "RELEASE_VERSION=$VERSION" >> $GITHUB_ENV
+          
 
       - name: Create release PR
         uses: ./.github/actions/create-release-pr
         with:
           RELEASE_TYPE: "release" 
-          BASE_BRANCH: "develop"
+          BASE_BRANCH: ${{ env.TAG }}
           RELEASE_VERSION: ${{ env.RELEASE_VERSION }}
 
       - name: Create pull request
@@ -64,7 +71,7 @@ jobs:
           echo "RELEASE_VERSION=$VERSION" >> $GITHUB_ENV
       
       - name: Create hotfix PR
-        uses: ./.github/actions/create-release-pr
+        uses: ./.github/actions/create-hotfix-pr
         with:
           RELEASE_TYPE: "hotfix" 
           BASE_BRANCH: "master"
@@ -89,4 +96,3 @@ jobs:
             I've updated the changelog and bumped the versions in the correct configuration files in this commit: ${{ steps.make-commit.outputs.commit }}.
             Apply your fixes to this branch (hotfix/${{ env.RELEASE_VERSION }}) and merge when appropriate.
             Merging this PR into master will create a GitHub release and upload a production app to Google Play Store.      
-   
