@@ -19,20 +19,12 @@ jobs:
           TITLE="${{ github.event.issue.title }}"
           VERSION=${TITLE#Release version }
           echo "RELEASE_VERSION=$VERSION" >> $GITHUB_ENV
-          # Set space as the delimiter
-          IFS=' '
-  
-          #Read the split words into an array based on space delimiter
-          read -a strarr <<< "$VERSION"
-          UAT_TAG=${strarr[0]}
-          VERSION=${strarr[1]}
 
-
--     name: Create release PR
+      - name: Create release PR
         uses: ./.github/actions/create-release-pr
         with:
           RELEASE_TYPE: "release" 
-          BASE_BRANCH: ${{ env.UAT_TAG }}
+          BASE_BRANCH: "develop"
           RELEASE_VERSION: ${{ env.RELEASE_VERSION }}
 
       - name: Create pull request
@@ -97,3 +89,4 @@ jobs:
             I've updated the changelog and bumped the versions in the correct configuration files in this commit: ${{ steps.make-commit.outputs.commit }}.
             Apply your fixes to this branch (hotfix/${{ env.RELEASE_VERSION }}) and merge when appropriate.
             Merging this PR into master will create a GitHub release and upload a production app to Google Play Store.      
+   
