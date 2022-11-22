@@ -19,8 +19,7 @@ runs:
     - name: Create hotfix branch
       run: |
         git fetch origin ${{ inputs.BASE_BRANCH }}
-        git checkout ${{ inputs.BASE_BRANCH }}
-        git checkout -b ${{ inputs.RELEASE_TYPE }}/${{ inputs.RELEASE_VERSION }}
+        git checkout tags/${{ inputs.BASE_BRANCH }} -b ${{ inputs.RELEASE_TYPE }}/${{ inputs.RELEASE_VERSION }}
       shell: bash
     
     # In order to make a commit, we need to initialize a user.
