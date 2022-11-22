@@ -18,7 +18,7 @@ runs:
 
     - name: Create hotfix branch
       run: |
-        git fetch origin ${{ inputs.BASE_BRANCH }}
+        git fetch --all
         git checkout tags/${{ inputs.BASE_BRANCH }} -b ${{ inputs.RELEASE_TYPE }}/${{ inputs.RELEASE_VERSION }}
       shell: bash
     
